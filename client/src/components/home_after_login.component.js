@@ -4,20 +4,34 @@ import {
   Col,
   Row,
   Card,
+  CardImg,
   // Button,
   InputGroup,
   FormControl,
+  Button,
 } from "react-bootstrap";
 import axios from "axios";
+import defaultProfilePic from "../assets/profile-pic.png";
+
 class Home2 extends Component {
   state = {
     feed: [],
+    allMembers: [],
   };
   componentDidMount() {
     axios
       .get(`https://jsonplaceholder.typicode.com/users/1/posts`)
       .then((res) => {
         this.setState({ feed: res.data });
+      })
+      .catch((errors) => {
+        console.error(errors);
+      });
+
+    axios
+      .get(`http://localhost:5000/user/`)
+      .then((res) => {
+        this.setState({ allMembers: res.data });
       })
       .catch((errors) => {
         console.error(errors);
@@ -102,7 +116,42 @@ class Home2 extends Component {
           </Col>
           {/* Members */}
           <Col lg={{ span: 4, offset: 1 }} style={{ border: "1px solid blue" }}>
-            Members
+            {this.state.allMembers.map((eachMember) => {
+              return (
+                <React.Fragment key={eachMember.id}>
+                  <Card className="mt-3" border="primary">
+                    <Card.Body>
+                      <Row style={{ flexWrap: "nowrap" }}>
+                        <Col className="px-lg-2 px-md-2 px-sm-0 px-0 col col-lg-2 col-md-2 col-sm-2 col-xs-2">
+                          <CardImg
+                            // className="p-2"
+                            style={{
+                              borderRadius: "50%",
+                              height: "100%",
+                              minWidth: "100%",
+                            }}
+                            src={defaultProfilePic}
+                          />
+                        </Col>
+                        <Col
+                          className="col col-lg-7 col-md-7 col-sm-7 col-xs-7"
+                          style={{ border: "1px solid black", margin: "auto" }} //margink : auto  to vertically center align rows
+                        >
+                          <Row>{eachMember.name}</Row>
+                          <Row>{eachMember.email}</Row>
+                        </Col>
+                        <Col
+                          className="px-lg-2 px-md-2 px-sm-2 px-0 col col-lg-3 col-md-3 col-sm-3 col-xs-3"
+                          style={{ border: "1px solid black", margin: "auto" }}
+                        >
+                          <Button>Follow</Button>
+                        </Col>
+                      </Row>
+                    </Card.Body>
+                  </Card>
+                </React.Fragment>
+              );
+            })}
           </Col>
         </Row>
       </Container>

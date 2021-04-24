@@ -124,11 +124,7 @@ function MyProfile() {
               <Card.Body>
                 <Row style={{ flexWrap: "nowrap" }}>
                   <Col
-                    className="px-lg-2 px-md-2 px-sm-0 px-0"
-                    lg={{ span: 2, offset: 0 }}
-                    md={{ span: 2, offset: 0 }}
-                    sm={{ span: 2, offset: 0 }}
-                    xs={{ span: 2, offset: 0 }}
+                    className="px-lg-2 px-md-2 px-sm-0 px-0 col col-lg-2 col-md-2 col-sm-2 col-xs-2"
                     style={{ border: "1px solid black" }}
                   >
                     <CardImg
@@ -142,10 +138,7 @@ function MyProfile() {
                     />
                   </Col>
                   <Col
-                    lg={{ span: 8, offset: 0 }}
-                    md={{ span: 8, offset: 0 }}
-                    sm={{ span: 8, offset: 0 }}
-                    xs={{ span: 8, offset: 0 }}
+                    className="col col-lg-8 col-md-8 col-sm-8 col-xs-8"
                     style={{ border: "1px solid black", margin: "auto" }} //margink : auto  to vertically center align rows
                   >
                     <Row style={{ border: "1px solid black" }}>Username</Row>
@@ -154,11 +147,7 @@ function MyProfile() {
                     </Row>
                   </Col>
                   <Col
-                    className="px-lg-2 px-md-2 px-sm-2 px-0"
-                    lg={{ span: 1, offset: 0 }}
-                    md={{ span: 1, offset: 0 }}
-                    sm={{ span: 1, offset: 0 }}
-                    xs={{ span: 1, offset: 0 }}
+                    className="px-lg-2 px-md-2 px-sm-2 px-0 col col-lg-1 col-md-1 col-sm-1 col-xs-1"
                     style={{ border: "1px solid black", margin: "auto" }}
                   >
                     <svg
@@ -173,11 +162,7 @@ function MyProfile() {
                     </svg>
                   </Col>
                   <Col
-                    className="px-lg-2 px-md-2 px-sm-2 px-0"
-                    lg={{ span: 1, offset: 0 }}
-                    md={{ span: 1, offset: 0 }}
-                    sm={{ span: 1, offset: 0 }}
-                    xs={{ span: 1, offset: 0 }}
+                    className="px-lg-2 px-md-2 px-sm-2 px-0 col col-lg-1 col-md-1 col-sm-1 col-xs-1"
                     style={{ border: "1px solid black", margin: "auto" }}
                   >
                     <svg

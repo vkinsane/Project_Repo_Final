@@ -104,7 +104,7 @@ class SignUp extends Component {
                 <Form.Control
                   type="text"
                   placeholder="Ex: Pichai"
-                  name="firstName"
+                  name="lastName"
                   onChange={this.handleChange}
                   required
                 />
