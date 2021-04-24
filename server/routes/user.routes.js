@@ -6,25 +6,25 @@ const bcrypt = require('bcryptjs');
 
 const verify = require('../tokens/loginToken');
 
-router.get('/', verify, async(req,res) => {
+router.get('/', async(req,res) => {
     Users.find()
       .then((users) => res.json(users))
       .catch((err) => res.status(400).json("Error: "+err));
 })
 
-router.get("/:userId", verify, (req, res) => {
+router.get("/:userId", (req, res) => {
     Users.findById(req.params.userId)
       .then((user) => res.json(user))
       .catch((err) => res.status(400).json("Error: " + err));
 });
 
-router.put("/:userId", verify, (req,res) => {
-    Users.findOneAndUpdate(req.params.userId, req.profile, {upsert: true})
+router.put("/:userId", (req,res) => {
+    Users.findOneAndUpdate(req.params.userId, req.body.profile, {upsert: true})
         .then(() => res.json("Succesfully saved"))
         .catch((err) => res.status(400).json("Error: " + err));
 })
 
-router.delete("/:userId", verify, (req, res) => {
+router.delete("/:userId", (req, res) => {
     Users.findByIdAndDelete(req.params.userId)
       .then(() => res.json("User Account Deleted"))
       .catch((err) => res.status(400).json("Error: " + err));
@@ -48,7 +48,7 @@ router.post('/register', async(req,res) => {
         .catch((err) => res.status(400).json('Error'+ err));
 })
 
-router.get("/:userId/photo", verify, (req,res) => {
+router.get("/:userId/photo", (req,res) => {
     if (req.profile.photo.data) {
         res.set("Content-Type", req.profile.photo.contentType)
         res.send(req.profile.photo.data);
@@ -58,7 +58,7 @@ router.get("/:userId/photo", verify, (req,res) => {
     res.sendFile(process.cwd()+profileImage);
 });
 
-router.get("/defaultphoto", verify, (req,res) => {
+router.get("/defaultphoto", (req,res) => {
     res.sendFile(process.cwd()+profileImage);
 })
 
@@ -79,7 +79,7 @@ router.put("/follow", verify, (req,res) => {
     } catch (err) { res.status(400).json("Error: "+err) }
 })
 
-router.put("/unfollow", verify, (req,res) => {
+router.put("/unfollow", (req,res) => {
     try {
         User.findByIdAndUpdate(req.body.userId, {$pull: {following: req.body.unfollowId}}) 
         try {
