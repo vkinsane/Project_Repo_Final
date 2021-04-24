@@ -8,19 +8,21 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 router.post('/login', async(req,res) => {
-    const user = await Users.findOne({ email: req.body.email });
-    if(!user) return res.status(400).json("Account not present");
-    
-    const auth = await bcrypt.compare(req.body.password, user.password);
-    if(!auth) return res.status(400).json("Wrong Password");
-    
-    const sessionDetails = {
-        id: user._id,
-        name: user.name
-    }
-    
-    const token = jwt.sign(sessionDetails, process.env.SECRET_KEY, { expiresIn: '30m' });
-    res.header("login-token", token).json("Login Successful!");
+    try {
+        const user = await Users.findOne({ email: req.body.email });
+        if(!user) return res.status(400).json("Account not present");
+        
+        const auth = await bcrypt.compare(req.body.password, user.hashed_password);
+        if(!auth) return res.status(400).json("Wrong Password");
+        
+        const sessionDetails = {
+            id: user._id,
+            name: user.name
+        }
+        
+        const token = jwt.sign(sessionDetails, process.env.SECRET_KEY, { expiresIn: '30m' });
+        res.header("login-token", token).json("Login Successful!");
+    } catch(err) { res.status(400).json("Error: "+err) }
 })
 
 router.post('/logout', async(req, res) => {

@@ -12,19 +12,19 @@ router.get('/', verify, async(req,res) => {
       .catch((err) => res.status(400).json("Error: "+err));
 })
 
-router.get("/:userId", (req, res) => {
+router.get("/:userId", verify, (req, res) => {
     Users.findById(req.params.userId)
       .then((user) => res.json(user))
       .catch((err) => res.status(400).json("Error: " + err));
 });
 
-router.post("/:userId", (req,res) => {
+router.put("/:userId", verify, (req,res) => {
     Users.findOneAndUpdate(req.params.userId, req.profile, {upsert: true})
         .then(() => res.json("Succesfully saved"))
         .catch((err) => res.status(400).json("Error: " + err));
 })
 
-router.delete("/:userId", (req, res) => {
+router.delete("/:userId", verify, (req, res) => {
     Users.findByIdAndDelete(req.params.userId)
       .then(() => res.json("User Account Deleted"))
       .catch((err) => res.status(400).json("Error: " + err));
@@ -40,7 +40,7 @@ router.post('/register', async(req,res) => {
     const addUser = new Users({
         name: req.body.name,
         email: req.body.email,
-        password: hashPassword,
+        hashed_password: hashPassword
     });
 
     addUser.save()
@@ -48,7 +48,7 @@ router.post('/register', async(req,res) => {
         .catch((err) => res.status(400).json('Error'+ err));
 })
 
-router.get("/:userId/photo", (req,res) => {
+router.get("/:userId/photo", verify, (req,res) => {
     if (req.profile.photo.data) {
         res.set("Content-Type", req.profile.photo.contentType)
         res.send(req.profile.photo.data);
@@ -58,11 +58,11 @@ router.get("/:userId/photo", (req,res) => {
     res.sendFile(process.cwd()+profileImage);
 });
 
-router.get("/defaultphoto", (req,res) => {
+router.get("/defaultphoto", verify, (req,res) => {
     res.sendFile(process.cwd()+profileImage);
 })
 
-router.put("/follow", (req,res) => {
+router.put("/follow", verify, (req,res) => {
     try {
         User.findByIdAndUpdate(req.body.userId, {$push: {following: req.body.followId}});
         try {
@@ -79,7 +79,7 @@ router.put("/follow", (req,res) => {
     } catch (err) { res.status(400).json("Error: "+err) }
 })
 
-router.put("/unfollow", (req,res) => {
+router.put("/unfollow", verify, (req,res) => {
     try {
         User.findByIdAndUpdate(req.body.userId, {$pull: {following: req.body.unfollowId}}) 
         try {
@@ -96,7 +96,7 @@ router.put("/unfollow", (req,res) => {
     } catch (err) { res.status(400).json("Error: "+err) }
 })
 
-router.get("/findpeople/:userId", (req,res) => {
+router.get("/findpeople/:userId", verify, (req,res) => {
     let following = req.profile.following
     following.push(req.profile._id)
     try {
