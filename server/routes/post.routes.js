@@ -20,9 +20,7 @@ router.post("/new/:userId", (req,res) => {
         try {
             let result = await post.save()
             res.json(result)
-        } catch (err){
-            res.status(400).json({ error: errorHandler.getErrorMessage(err) });
-        }
+        } catch (err) { res.status(400).json("Error: "+err) }
     })
 })
 
@@ -39,9 +37,7 @@ router.get("by/:userId", (req,res) => {
                               .sort('-created')
                               .exec()
         res.json(posts)
-    } catch(err) {
-        return res.status(400).json({ error: errorHandler.getErrorMessage(err) });
-    }
+    } catch (err) { res.status(400).json("Error: "+err) }
 })
 
 router.get("feed/:userId", (req,res) => {
@@ -54,27 +50,21 @@ router.get("feed/:userId", (req,res) => {
                             .sort('-created')
                             .exec()
         res.json(posts)
-    } catch(err) {
-        return res.status(400).json({ error: errorHandler.getErrorMessage(err) });
-    }
+    } catch (err) { res.status(400).json("Error: "+err) }
 })
 
 router.put("like", (req,res) => {
     try {
         let result = Post.findByIdAndUpdate(req.body.postId, {$push: {likes: req.body.userId}}, {new: true})
         res.json(result)
-    } catch(err) {
-        res.status(400).json({ error: errorHandler.getErrorMessage(err) })
-    }
+    } catch (err) { res.status(400).json("Error: "+err) }
 })
 
 router.put("unlike", (req,res) => {
     try {
         let result = Post.findByIdAndUpdate(req.body.postId, {$pull: {likes: req.body.userId}}, {new: true})
         res.json(result)
-    } catch(err) {
-        res.status(400).json({ error: errorHandler.getErrorMessage(err) })
-    }
+    } catch (err) { res.status(400).json("Error: "+err) }
 })
 
 router.put("comment", (req,res) => {
@@ -86,22 +76,18 @@ router.put("comment", (req,res) => {
                                 .populate('postedBy', '_id name')
                                 .exec()
         res.json(result)
-    } catch(err) {
-        res.status(400).json({ error: errorHandler.getErrorMessage(err) })
-    }
+    } catch (err) { res.status(400).json("Error: "+err) }
 })
 
 router.put("uncomment", (req,res) => {
     let comment = req.body.comment
-    try{
+    try {
         let result = Post.findByIdAndUpdate(req.body.postId, {$pull: {comments: {_id: comment._id}}}, {new: true})
                             .populate('comments.postedBy', '_id name')
                             .populate('postedBy', '_id name')
                             .exec()
         res.json(result)
-    }catch(err){
-        res.status(400).json({ error: errorHandler.getErrorMessage(err) })
-    }
+    } catch (err) { res.status(400).json("Error: "+err) }
 })
 
 router.delete("/posts/:postId", (req,res) => {
@@ -109,12 +95,10 @@ router.delete("/posts/:postId", (req,res) => {
     if(!isPoster) res.status('403').json({ error: "User is not authorized" })
 
     let post = req.post
-    try{
+    try {
         let deletedPost = post.remove()
         res.json(deletedPost)
-    }catch(err){
-        res.status(400).json({ error: errorHandler.getErrorMessage(err) })
-    }
+    } catch (err) { res.status(400).json("Error: "+err) }
 })
 
 module.exports = router;

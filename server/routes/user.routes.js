@@ -76,9 +76,7 @@ router.put("/follow", (req,res) => {
         } catch(err) {
             res.status(400).json({ error: errorHandler.getErrorMessage(err) })
         }
-    } catch(err) {
-        res.status(400).json({ error: errorHandler.getErrorMessage(err) });
-    }
+    } catch (err) { res.status(400).json("Error: "+err) }
 })
 
 router.put("/unfollow", (req,res) => {
@@ -95,9 +93,7 @@ router.put("/unfollow", (req,res) => {
         } catch(err) {
             return res.status(400).json({ error: errorHandler.getErrorMessage(err) })
         }
-    } catch(err) {
-        return res.status(400).json({ error: errorHandler.getErrorMessage(err) });
-    }
+    } catch (err) { res.status(400).json("Error: "+err) }
 })
 
 router.get("/findpeople/:userId", (req,res) => {
@@ -106,9 +102,7 @@ router.get("/findpeople/:userId", (req,res) => {
     try {
         let users = User.find({ _id: { $nin : following } }).select('name')
         res.json(users)
-    }catch(err){
-        res.status(400).json({ error: errorHandler.getErrorMessage(err) })
-    }
+    } catch (err) { res.status(400).json("Error: "+err) }
 })
 
 module.exports = router;
