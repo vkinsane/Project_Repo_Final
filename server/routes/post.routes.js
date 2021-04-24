@@ -27,7 +27,7 @@ router.get("/photo/:postId", (req,res) => {
 
 router.get("/by/:userId", (req,res) => {
     try {
-        let posts = Post.find({postedBy: req.profile._id})
+        let posts = Post.find({postedBy: req.body.profile._id})
                               .populate('comments.postedBy', '_id name')
                               .populate('postedBy', '_id name')
                               .sort('-created')
@@ -37,10 +37,10 @@ router.get("/by/:userId", (req,res) => {
 })
 
 router.get("/feed/:userId", (req,res) => {
-    let following = req.profile.following
-    following.push(req.profile._id)
+    let following = req.body.profile.following
+    following.push(req.body.profile._id)
     try {
-        let posts = Post.find({postedBy: { $in : req.profile.following } })
+        let posts = Post.find({postedBy: { $in : req.body.profile.following } })
                             .populate('comments.postedBy', '_id name')
                             .populate('postedBy', '_id name')
                             .sort('-created')
