@@ -111,6 +111,4 @@ router.get("/findpeople/:userId", (req,res) => {
     }
 })
 
-
-
 module.exports = router;

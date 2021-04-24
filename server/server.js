@@ -32,6 +32,9 @@ app.use('/auth', authRouter);
 const userRouter = require('./routes/user.routes');
 app.use('/user', userRouter);
 
+const postRouter = require('./routes/post.routes');
+app.use('/post', userRouter);
+
 app.listen(port, () => {
   console.log(`Server running on port: ${port}`);
 })

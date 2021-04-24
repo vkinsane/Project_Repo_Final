@@ -7,8 +7,6 @@ const Blacklist = require('../models/blacklist_model');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-const verify = require('../tokens/loginToken');
-
 router.post('/login', async(req,res) => {
     const user = await Users.findOne({ email: req.body.email });
     if(!user) return res.status(400).json("Account not present");
