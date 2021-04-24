@@ -64,9 +64,9 @@ router.get("/defaultphoto", (req,res) => {
 
 router.put("/follow", (req,res) => {
     try {
-        await User.findByIdAndUpdate(req.body.userId, {$push: {following: req.body.followId}});
+        User.findByIdAndUpdate(req.body.userId, {$push: {following: req.body.followId}});
         try {
-            let result = await User.findByIdAndUpdate(req.body.followId, {$push: {followers: req.body.userId}}, {new: true})
+            let result = User.findByIdAndUpdate(req.body.followId, {$push: {followers: req.body.userId}}, {new: true})
                                     .populate('following', '_id name')
                                     .populate('followers', '_id name')
                                     .exec();
@@ -83,9 +83,9 @@ router.put("/follow", (req,res) => {
 
 router.put("/unfollow", (req,res) => {
     try {
-        await User.findByIdAndUpdate(req.body.userId, {$pull: {following: req.body.unfollowId}}) 
+        User.findByIdAndUpdate(req.body.userId, {$pull: {following: req.body.unfollowId}}) 
         try {
-            let result = await User.findByIdAndUpdate(req.body.unfollowId, {$pull: {followers: req.body.userId}}, {new: true})
+            let result = User.findByIdAndUpdate(req.body.unfollowId, {$pull: {followers: req.body.userId}}, {new: true})
                                     .populate('following', '_id name')
                                     .populate('followers', '_id name')
                                     .exec() 
@@ -104,7 +104,7 @@ router.get("/findpeople/:userId", (req,res) => {
     let following = req.profile.following
     following.push(req.profile._id)
     try {
-        let users = await User.find({ _id: { $nin : following } }).select('name')
+        let users = User.find({ _id: { $nin : following } }).select('name')
         res.json(users)
     }catch(err){
         res.status(400).json({ error: errorHandler.getErrorMessage(err) })
