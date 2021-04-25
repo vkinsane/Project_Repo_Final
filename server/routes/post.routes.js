@@ -2,86 +2,85 @@ const { Router } = require('express');
 const express = require('express');
 const router = express.Router();
 const formidable = require('formidable');
+const fs = require('fs');
 
 const Post = require('../models/posts_model');
+const User = require('../models/users_model');
 
 router.post("/new/:userId", (req,res) => {
-    try {
-        let post = new Post();
-        if(req.body.photo) {
-            post.photo.data = fs.readFileSync(req.body.photo.path);
-            post.photo.contentType = req.body.photo.type;
-            post.text = req.body.text;
+    let form = new formidable.IncomingForm()
+    form.keepExtensions = true
+    form.parse(req, async (err, fields, files) => {
+        if (err) res.status(400).json({ error: "Image could not be uploaded" })
+        
+        let post = new Post(fields)
+        post.postedBy = req.params.userId
+        if(files.photo){
+            post.photo.data = fs.readFileSync(files.photo.path)
+            post.photo.contentType = files.photo.type
         }
+        
         try {
-            let result = post.save();
-            res.json(result);
-        } catch (err) { res.status(400).json("Error: "+err) }
-    } catch (err) { res.status(400).json("Error: "+err) }
+            let result = await post.save()
+            res.json(result)
+        } catch (err) {
+            res.status(400).json({ error: "There was some Error in Database" })
+        }
+    })
 })
 
-router.get("/photo/:postId", (req,res) => {
-    res.set("Content-Type", req.post.photo.contentType)
-    res.send(req.post.photo.data);
+router.get("/photo/:postId", async (req,res) => {
+    try{
+        let post = await Post.findById(req.params.postId).populate('postedBy', '_id name').exec()
+        if (!post) res.status('400').json({ error: "Post not found" })
+        res.json({ ...post })
+    } catch(err) {
+        return res.status('400').json({ error: "Could not retrieve use post" })
+    }
 })
 
-router.get("/by/:userId", (req,res) => {
+router.get("/by/:userId", async (req,res) => {
     try {
-        let posts = Post.find({postedBy: req.body.profile._id})
-                              .populate('comments.postedBy', '_id name')
-                              .populate('postedBy', '_id name')
-                              .sort('-created')
-                              .exec()
+        let posts = await Post.find({postedBy: req.params.userId})
         res.json(posts)
     } catch (err) { res.status(400).json("Error: "+err) }
 })
 
-router.get("/feed/:userId", (req,res) => {
+router.get("/feed/:userId", async (req,res) => {
     let following = req.body.profile.following
     following.push(req.body.profile._id)
     try {
-        let posts = Post.find({postedBy: { $in : req.body.profile.following } })
-                            .populate('comments.postedBy', '_id name')
-                            .populate('postedBy', '_id name')
-                            .sort('-created')
-                            .exec()
+        let posts = await Post.find({postedBy: { $in : req.body.profile.following } })
         res.json(posts)
     } catch (err) { res.status(400).json("Error: "+err) }
 })
 
-router.put("/like", (req,res) => {
+router.put("/like", async (req,res) => {
     try {
-        let result = Post.findByIdAndUpdate(req.body.postId, {$push: {likes: req.body.userId}}, {new: true})
+        let result = await Post.findByIdAndUpdate(req.body.postId, {$push: {likes: req.body.userId}}, {new: true})
         res.json(result)
     } catch (err) { res.status(400).json("Error: "+err) }
 })
 
-router.put("/unlike", (req,res) => {
+router.put("/unlike", async (req,res) => {
     try {
-        let result = Post.findByIdAndUpdate(req.body.postId, {$pull: {likes: req.body.userId}}, {new: true})
+        let result = await Post.findByIdAndUpdate(req.body.postId, {$pull: {likes: req.body.userId}}, {new: true})
         res.json(result)
     } catch (err) { res.status(400).json("Error: "+err) }
 })
 
-router.put("/comment", (req,res) => {
-    let comment = req.body.comment
-    comment.postedBy = req.body.userId
+router.put("/comment", async (req,res) => {
     try {
-        let result = Post.findByIdAndUpdate(req.body.postId, {$push: {comments: comment}}, {new: true})
-                                .populate('comments.postedBy', '_id name')
-                                .populate('postedBy', '_id name')
-                                .exec()
-        res.json(result)
+        let comment = req.body.comment;
+        comment.postedBy = req.body.userId;
+        let result = await Post.findByIdAndUpdate(req.body.postId, {$push: {comments: comment}}, {new: true});
+        res.json(result);
     } catch (err) { res.status(400).json("Error: "+err) }
 })
 
-router.put("/uncomment", (req,res) => {
-    let comment = req.body.comment
+router.put("/uncomment", async (req,res) => {
     try {
-        let result = Post.findByIdAndUpdate(req.body.postId, {$pull: {comments: {_id: comment._id}}}, {new: true})
-                            .populate('comments.postedBy', '_id name')
-                            .populate('postedBy', '_id name')
-                            .exec()
+        let result = await Post.findByIdAndUpdate(req.body.postId, {$pull: {comments: {_id: req.body.comment._id}}}, {new: true})
         res.json(result)
     } catch (err) { res.status(400).json("Error: "+err) }
 })
