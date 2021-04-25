@@ -41,6 +41,7 @@ class SignIn extends Component {
       .then((res) => {
         console.log("Redirecting to Homepage");
         localStorage.setItem("userLoggedIn", "1");
+        localStorage.setItem("userId", res.data.id);
         this.setState({
           redirect: true,
         });
