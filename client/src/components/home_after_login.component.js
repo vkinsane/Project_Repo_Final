@@ -12,15 +12,19 @@ import {
 } from "react-bootstrap";
 import axios from "axios";
 import defaultProfilePic from "../assets/profile-pic.png";
+import CreatePost from "./create_post.component";
+import ImageHelper from "./image_helper.component";
 
 class Home2 extends Component {
   state = {
     feed: [],
     allMembers: [],
+    following: [],
+    formData: new FormData(),
   };
   componentDidMount() {
     axios
-      .get(`https://jsonplaceholder.typicode.com/users/1/posts`)
+      .get(`http://localhost:5000/post/by/${localStorage.getItem("userId")}`)
       .then((res) => {
         this.setState({ feed: res.data });
       })
@@ -36,8 +40,66 @@ class Home2 extends Component {
       .catch((errors) => {
         console.error(errors);
       });
+
+    axios
+      .get(`http://localhost:5000/user/${localStorage.getItem("userId")}`)
+      .then((res) => {
+        this.setState({ following: res.data.following });
+        console.log(this.state.following);
+      })
+      .catch((errors) => {
+        console.error(errors);
+      });
   }
 
+  follow = ({ target }) => {
+    let { value, name } = target;
+    console.log(value);
+    axios({
+      url: "http://localhost:5000/user/follow",
+      method: "POST",
+      data: {
+        userId: localStorage.getItem("userId"),
+        followId: value,
+      },
+    })
+      .then(() => {
+        this.setState({
+          showAlert: true,
+        });
+        console.log("Started Following", name);
+      })
+      .catch(() => {
+        this.setState({
+          showAlert: true,
+        });
+        console.log("Internal Server error");
+      });
+  };
+  unfollow = ({ target }) => {
+    let { value, name } = target;
+    console.log(value);
+    axios({
+      url: "http://localhost:5000/user/unfollow",
+      method: "POST",
+      data: {
+        userId: localStorage.getItem("userId"),
+        unfollowId: value,
+      },
+    })
+      .then(() => {
+        this.setState({
+          showAlert: true,
+        });
+        console.log("UnFollowed", name);
+      })
+      .catch(() => {
+        this.setState({
+          showAlert: true,
+        });
+        console.log("Internal Server error");
+      });
+  };
   render() {
     return (
       <Container fluid>
@@ -45,20 +107,31 @@ class Home2 extends Component {
         <br />
         <Row>
           {/* Feed/Posts */}
-          <Col lg={{ span: 5, offset: 1 }} style={{ border: "1px solid red" }}>
+
+          <Col lg={{ span: 5, offset: 1 }}>
+            <CreatePost />
+            <div
+              class="alert alert-primary mt-3"
+              role="alert"
+              style={{
+                // border: "1px solid black",
+                borderRadius: "0px",
+              }}
+            >
+              Feed &nbsp;&nbsp;
+            </div>
+
             {this.state.feed.map((eachPost) => {
               return (
                 <React.Fragment key={eachPost.id}>
                   <Card className="mt-3" border="primary">
-                    <Card.Header>
-                      {"{UserPic}"} {"{UserName}"} UserId : {eachPost.userId}
-                    </Card.Header>
+                    <Card.Header>{eachPost.text}</Card.Header>
                     <Card.Body>
-                      <Card.Title>
-                        {"{Remove}"} Post id : {eachPost.id}
-                      </Card.Title>
-                      <Card.Text>Post image : {"{Image}"}</Card.Text>
-                      <Card.Text>Post Body : {eachPost.body}</Card.Text>
+                      <Card.Title>Post id : {eachPost._id}</Card.Title>
+                      <Card.Text style={{ textAlign: "center" }}>
+                        <ImageHelper post={eachPost} />
+                      </Card.Text>
+                      <Card.Text> Created at : {eachPost.created}</Card.Text>
 
                       <Row>
                         <Col className="col-1">
@@ -115,7 +188,18 @@ class Home2 extends Component {
             })}
           </Col>
           {/* Members */}
-          <Col lg={{ span: 4, offset: 1 }} style={{ border: "1px solid blue" }}>
+
+          <Col lg={{ span: 4, offset: 1 }}>
+            <div
+              class="alert alert-primary mt-3"
+              role="alert"
+              style={{
+                // border: "1px solid black",
+                borderRadius: "0px",
+              }}
+            >
+              Connect With Others &nbsp;&nbsp;
+            </div>
             {this.state.allMembers.map((eachMember) => {
               return (
                 <React.Fragment key={eachMember.id}>
@@ -135,16 +219,29 @@ class Home2 extends Component {
                         </Col>
                         <Col
                           className="col col-lg-7 col-md-7 col-sm-7 col-xs-7"
-                          style={{ border: "1px solid black", margin: "auto" }} //margink : auto  to vertically center align rows
+                          //margink : auto  to vertically center align rows
                         >
                           <Row>{eachMember.name}</Row>
                           <Row>{eachMember.email}</Row>
                         </Col>
-                        <Col
-                          className="px-lg-2 px-md-2 px-sm-2 px-0 col col-lg-3 col-md-3 col-sm-3 col-xs-3"
-                          style={{ border: "1px solid black", margin: "auto" }}
-                        >
-                          <Button>Follow</Button>
+                        <Col className="px-lg-2 px-md-2 px-sm-2 px-0 col col-lg-3 col-md-3 col-sm-3 col-xs-3">
+                          {this.state.following.includes(eachMember._id) ? (
+                            <Button
+                              value={eachMember._id}
+                              name={eachMember.name}
+                              onClick={this.unfollow}
+                            >
+                              Unfollow
+                            </Button>
+                          ) : (
+                            <Button
+                              value={eachMember._id}
+                              name={eachMember.name}
+                              onClick={this.follow}
+                            >
+                              Follow
+                            </Button>
+                          )}
                         </Col>
                       </Row>
                     </Card.Body>

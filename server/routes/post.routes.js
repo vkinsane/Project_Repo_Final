@@ -29,18 +29,27 @@ router.post("/new/:userId", (req, res) => {
   });
 });
 
-router.get("/photo/:postId", async (req, res) => {
-  try {
-    let post = await Post.findById(req.params.postId)
-      .populate("postedBy", "_id name")
-      .exec();
-    if (!post) res.status("400").json({ error: "Post not found" });
-    res.json({ ...post });
-  } catch (err) {
-    return res.status("400").json({ error: "Could not retrieve use post" });
-  }
-});
+// router.get("/photo/:postId", async (req, res) => {
+//   try {
+//     let post = await Post.findById(req.params.postId);
+//     // .populate("postedBy", "_id name")
+//     // .exec();
+//     if (!post) res.status("400").json({ error: "Post not found" });
+//     res.json({ ...post });
+//   } catch (err) {
+//     return res.status("400").json({ error: "Could not retrieve use post" });
+//   }
+// });
 
+router.get("/photo/:postId", (req, res) => {
+  // var foundBook = book.findById({ _id: req.params.productId });
+  Post.findById({ _id: req.params.postId })
+    .then((obj) => {
+      res.set("Content-Type", obj.photo.contentType);
+      return res.send(obj.photo.data);
+    })
+    .catch("There was some problem !");
+});
 router.get("/by/:userId", async (req, res) => {
   try {
     let posts = await Post.find({ postedBy: req.params.userId });

@@ -1,8 +1,3 @@
-// import React, {
-//   useState,
-//   // useEffect
-// } from "react";
-
 import {
   Nav,
   Card,
@@ -11,55 +6,65 @@ import {
   Container,
   CardImg,
   Jumbotron,
-  Button,
-  // Tabs,
-  // Tab,
 } from "react-bootstrap";
 
-//image
 import defaultProfilePic from "../assets/profile-pic.png";
 import React, { Component } from "react";
 import axios from "axios";
+import ImageHelper from "./image_helper.component";
 
 class MyProfile extends Component {
   state = {
     tab: "posts",
     userData: {},
+    followingData: [],
+    followingIds: [],
+    redirect: false,
+    feed: [],
   };
+
   ContentTabsSelector = (tab) => {
     switch (tab) {
       case "posts":
         return (
           <Jumbotron>
-            <h1>Hello, world!</h1>
-            <p>
-              This is a simple hero unit, a simple jumbotron-style component for
-              calling extra attention to featured content or information.
-            </p>
-            <p>
-              <Button variant="primary">Learn more</Button>
-            </p>
+            {this.state.feed.map((eachPost) => {
+              return (
+                <React.Fragment key={eachPost.id}>
+                  <Card className="mt-3" border="primary">
+                    <Card.Header>{eachPost.text}</Card.Header>
+                    <Card.Body>
+                      <Card.Text style={{ textAlign: "center" }}>
+                        <ImageHelper post={eachPost} />
+                      </Card.Text>
+
+                      {/* Comment */}
+                    </Card.Body>
+                  </Card>
+                </React.Fragment>
+              );
+            })}
           </Jumbotron>
         );
       // break;
       case "following":
         return (
           <Jumbotron>
-            <h1>Hello World</h1>
+            {this.state.userData.following.map((eachId) => {
+              if (this.state.userData.following.length === 0) {
+                return <h1>Zero Following</h1>;
+              }
+              return <h1>{eachId}</h1>;
+            })}
           </Jumbotron>
         );
       // break;
       case "followers":
         return (
           <Jumbotron>
-            <h1>Hello, followers!</h1>
-            <p>
-              This is a simple hero unit, a simple jumbotron-style component for
-              calling extra attention to featured content or information.
-            </p>
-            <p>
-              <Button variant="primary">Learn more</Button>
-            </p>
+            {this.state.userData.followers.map((eachId) => {
+              return <h1>{eachId}</h1>;
+            })}
           </Jumbotron>
         );
       // break;
@@ -72,15 +77,38 @@ class MyProfile extends Component {
     axios
       .get(`http://localhost:5000/user/${localStorage.getItem("userId")}`)
       .then((res) => {
-        // console.log(res.data);
-        this.setState({ userData: res.data });
+        console.log("userData", res.data);
+        this.setState({
+          userData: res.data,
+          followingIds: res.data.following,
+        });
+      })
+      .catch((errors) => {
+        console.error(errors);
+      });
+
+    axios
+      .get(`http://localhost:5000/post/by/${localStorage.getItem("userId")}`)
+      .then((res) => {
+        this.setState({ feed: res.data });
       })
       .catch((errors) => {
         console.error(errors);
       });
   }
+  deleteUser = () => {
+    alert("Are You Sure?");
+    axios
+      .delete(`http://localhost:5000/user/${localStorage.getItem("userId")}`)
+      .then((res) => {
+        localStorage.removeItem("userId");
+        localStorage.removeItem("userLoggedIn");
 
-  // const [tab,  this.setState] = useState("posts");
+        console.log(res.data);
+        this.setState({ redirect: true });
+      });
+  };
+
   render() {
     return (
       <React.Fragment>
@@ -89,7 +117,6 @@ class MyProfile extends Component {
         <Container fluid>
           <Row>
             <Col
-              // style={{ border: "1px solid black" }}
               lg={{ span: 6, offset: 3 }}
               md={{ span: 8, offset: 2 }}
               sm={{ span: 10, offset: 1 }}
@@ -98,11 +125,9 @@ class MyProfile extends Component {
               <Card border="secondary">
                 <Card.Header>Profile</Card.Header>
                 <Card.Body>
+                  {/* Upper Part */}
                   <Row style={{ flexWrap: "nowrap" }}>
-                    <Col
-                      className="px-lg-2 px-md-2 px-sm-0 px-0 col col-lg-2 col-md-2 col-sm-2 col-xs-2"
-                      style={{ border: "1px solid black" }}
-                    >
+                    <Col className="px-lg-2 px-md-2 px-sm-0 px-0 col col-lg-2 col-md-2 col-sm-2 col-xs-2">
                       <CardImg
                         // className="p-2"
                         style={{
@@ -115,18 +140,14 @@ class MyProfile extends Component {
                     </Col>
                     <Col
                       className="col col-lg-8 col-md-8 col-sm-8 col-xs-8"
-                      style={{ border: "1px solid black", margin: "auto" }} //margink : auto  to vertically center align rows
+                      style={{ margin: "auto" }} //margink : auto  to vertically center align rows
                     >
-                      <Row style={{ border: "1px solid black" }}>
-                        {this.state.userData.name}
-                      </Row>
-                      <Row style={{ border: "1px solid black" }}>
-                        {this.state.userData.email}
-                      </Row>
+                      <Row>{this.state.userData.name}</Row>
+                      <Row>{this.state.userData.email}</Row>
                     </Col>
                     <Col
                       className="px-lg-2 px-md-2 px-sm-2 px-0 col col-lg-1 col-md-1 col-sm-1 col-xs-1"
-                      style={{ border: "1px solid black", margin: "auto" }}
+                      style={{ margin: "auto" }}
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -141,9 +162,10 @@ class MyProfile extends Component {
                     </Col>
                     <Col
                       className="px-lg-2 px-md-2 px-sm-2 px-0 col col-lg-1 col-md-1 col-sm-1 col-xs-1"
-                      style={{ border: "1px solid black", margin: "auto" }}
+                      style={{ margin: "auto" }}
                     >
                       <svg
+                        onClick={this.deleteUser}
                         xmlns="http://www.w3.org/2000/svg"
                         width="28"
                         height="28"
@@ -156,14 +178,10 @@ class MyProfile extends Component {
                     </Col>
                   </Row>
                   <hr />
+                  {/* Posts Followrs part */}
                   <Card.Text>
-                    Some quick example text to build on the card title and make
-                    up the bulk of the card's content.
-                  </Card.Text>
-
-                  <Card.Text style={{ border: "1px solid black" }}>
                     <Nav
-                      style={{ border: "1px solid black", margin: "auto" }}
+                      style={{ margin: "auto" }}
                       justify
                       variant="pills"
                       defaultActiveKey="posts"
@@ -182,6 +200,7 @@ class MyProfile extends Component {
                         <Nav.Link
                           eventKey="following"
                           onClick={() => {
+                            // this.getFollowingsData();
                             this.setState({ tab: "following" });
                           }}
                         >
@@ -200,7 +219,7 @@ class MyProfile extends Component {
                       </Nav.Item>
                     </Nav>
                   </Card.Text>
-                  <Card.Text style={{ border: "1px solid black" }}>
+                  <Card.Text>
                     {this.ContentTabsSelector(this.state.tab)}
                   </Card.Text>
                   {/* <ControlledTabs /> */}
@@ -209,6 +228,7 @@ class MyProfile extends Component {
             </Col>
           </Row>
         </Container>
+        {this.state.redirect && (window.open(`/`, "_self"), window.close())}
       </React.Fragment>
     );
   }

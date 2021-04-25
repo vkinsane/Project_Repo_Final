@@ -69,6 +69,16 @@ class SignIn extends Component {
           {showAlert && (
             <Alert variant="primary">New Account Created! Login </Alert>
           )}
+          {this.state.alertType && (
+            <Alert
+              variant="danger"
+              onClick={() => {
+                this.setState({ alertType: false });
+              }}
+            >
+              Something went Wrong!!! ,Try Again!
+            </Alert>
+          )}
           <Form
             className="shadow-lg bg-white rounded"
             //onSubmit={this.submit}

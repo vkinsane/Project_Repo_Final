@@ -79,15 +79,15 @@ router.get("/:userId/photo", (req, res) => {
   res.sendFile(process.cwd() + profileImage);
 });
 
-router.get("/:userId/photo", (req, res) => {
-  if (req.profile.photo.data) {
-    res.set("Content-Type", req.profile.photo.contentType);
-    res.send(req.profile.photo.data);
-  } else {
-    res.sendFile(process.cwd() + profileImage);
-  }
-  res.sendFile(process.cwd() + profileImage);
-});
+// router.get("/:userId/photo", (req, res) => {
+//   if (req.profile.photo.data) {
+//     res.set("Content-Type", req.profile.photo.contentType);
+//     res.send(req.profile.photo.data);
+//   } else {
+//     res.sendFile(process.cwd() + profileImage);
+//   }
+//   res.sendFile(process.cwd() + profileImage);
+// });
 
 router.post("/follow", async (req, res) => {
   try {
