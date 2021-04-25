@@ -223,6 +223,7 @@ class Home2 extends Component {
             >
               Connect With Others &nbsp;&nbsp;
             </div>
+
             {this.state.allMembers.map((eachMember) => {
               return (
                 <React.Fragment key={eachMember.id}>
