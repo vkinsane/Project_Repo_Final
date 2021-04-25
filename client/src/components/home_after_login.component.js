@@ -17,6 +17,7 @@ import ImageHelper from "./image_helper.component";
 
 class Home2 extends Component {
   state = {
+    postLiked: false,
     feed: [],
     allMembers: [],
     following: [],
@@ -24,18 +25,18 @@ class Home2 extends Component {
   };
   componentDidMount() {
     axios
-      .get(`http://localhost:5000/post/by/${localStorage.getItem("userId")}`)
+      .get(`http://localhost:5000/user/`)
       .then((res) => {
-        this.setState({ feed: res.data });
+        this.setState({ allMembers: res.data });
       })
       .catch((errors) => {
         console.error(errors);
       });
 
     axios
-      .get(`http://localhost:5000/user/`)
+      .get(`http://localhost:5000/post/by/${localStorage.getItem("userId")}`)
       .then((res) => {
-        this.setState({ allMembers: res.data });
+        this.setState({ feed: res.data });
       })
       .catch((errors) => {
         console.error(errors);
@@ -51,7 +52,24 @@ class Home2 extends Component {
         console.error(errors);
       });
   }
-
+  likePost = ({ target }) => {
+    let { name } = target;
+    axios({
+      url: `http://localhost:5000/post/like/`,
+      method: "PUT", //check here put
+      data: {
+        userId: localStorage.getItem("userId"),
+        postId: name,
+      },
+    })
+      .then(() => {
+        this.setState({ postLiked: true });
+        console.log("Liked Successfully");
+      })
+      .catch(() => {
+        console.log("There was some error");
+      });
+  };
   follow = ({ target }) => {
     let { value, name } = target;
     console.log(value);
@@ -109,6 +127,7 @@ class Home2 extends Component {
           {/* Feed/Posts */}
 
           <Col lg={{ span: 5, offset: 1 }}>
+            {/* Create Post */}
             <CreatePost />
             <div
               class="alert alert-primary mt-3"
@@ -136,10 +155,12 @@ class Home2 extends Component {
                       <Row>
                         <Col className="col-1">
                           <svg
+                            name={eachPost._id}
+                            onClick={this.likePost}
                             xmlns="http://www.w3.org/2000/svg"
                             width="25"
                             height="25"
-                            fill="currentColor"
+                            fill={this.state.postLiked ? "red" : "black"}
                             className="bi bi-heart"
                             viewBox="0 0 20 20"
                           >
@@ -159,7 +180,9 @@ class Home2 extends Component {
                           </svg>
                         </Col>
                       </Row>
+
                       <hr />
+
                       <Row>
                         <Col className="col-10">
                           <InputGroup className="mb-3">

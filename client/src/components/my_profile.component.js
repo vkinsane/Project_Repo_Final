@@ -23,6 +23,12 @@ class MyProfile extends Component {
     feed: [],
   };
 
+  nameDecoder = (eachId) => {
+    axios.get(`http://localhost:5000/user/${eachId}`).then((res) => {
+      return res.data.name;
+    });
+  };
+
   ContentTabsSelector = (tab) => {
     switch (tab) {
       case "posts":
@@ -51,9 +57,6 @@ class MyProfile extends Component {
         return (
           <Jumbotron>
             {this.state.userData.following.map((eachId) => {
-              if (this.state.userData.following.length === 0) {
-                return <h1>Zero Following</h1>;
-              }
               return <h1>{eachId}</h1>;
             })}
           </Jumbotron>
