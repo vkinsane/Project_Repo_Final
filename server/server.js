@@ -22,6 +22,8 @@ conn.once('open', () => {
   console.log('MongoDB connection established');
 })
 
+require('./models/users_model');
+
 app.get('/', (req,res) => {
   res.send("Welcome to your First Mern Backend");
 })
