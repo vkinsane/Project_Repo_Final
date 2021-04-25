@@ -25,7 +25,7 @@ class SignUp extends Component {
   handleChange = ({ target }) => {
     const { name, value } = target;
     this.setState({ [name]: value });
-    // console.log(this.state);
+    console.log(this.state);
   };
   submit = (event) => {
     event.preventDefault();
